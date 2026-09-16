@@ -25,6 +25,8 @@ Required values include the actual network, token, contract, recipient, amount, 
 
 The current adapter targets EVM/ERC-20 transfers and checks transaction existence, receipt success, confirmation depth, token contract, transfer recipient, and amount. It does not invent a chain, endpoint, contract, wallet, or token. A different chain requires a new adapter implementing the normalized verification contract.
 
+Production payment configuration is Ethereum mainnet USDT at 2.34 USDT (2,340,000 base units). The canonical USDT contract is `0xdAC17F958D2ee523a2206206994597C13D831ec7`; it is verified against the [Etherscan Ethereum-mainnet token page](https://etherscan.io/token/0xdAC17F958D2ee523a2206206994597C13D831ec7), which identifies Tether USD and 6 decimals.
+
 ## Vercel
 
 Import the repository, set the same server-only environment variables in Vercel, connect `blitle.com` under Project Settings > Domains, and configure PostgreSQL migrations/deployment. Do not use `NEXT_PUBLIC_` for secrets.

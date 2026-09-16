@@ -1,7 +1,10 @@
 import { createPublicClient, formatUnits, http, parseAbi, parseUnits } from "viem";
 import { getConfig } from "@/lib/config";
 
-const erc20Abi = parseAbi(["function decimals() view returns (uint8)"]);
+const erc20Abi = parseAbi([
+  "function decimals() view returns (uint8)",
+  "function symbol() view returns (string)"
+]);
 const transferAbi = parseAbi(["event Transfer(address indexed from, address indexed to, uint256 value)"]);
 
 export type VerificationResult = {
@@ -19,6 +22,7 @@ export type VerificationResult = {
 export async function verifyTransaction(hash: string): Promise<VerificationResult> {
   const config = getConfig();
   const client = createPublicClient({ transport: http(config.BLOCKCHAIN_RPC_URL) });
+  if (await client.getChainId() !== 1) return invalid(hash, config.PAYMENT_NETWORK, "WRONG_NETWORK");
   const receipt = await client.getTransactionReceipt({ hash: hash as `0x${string}` }).catch(() => null);
   if (!receipt) return invalid(hash, config.PAYMENT_NETWORK, "TRANSACTION_NOT_FOUND");
   if (receipt.status !== "success") return invalid(hash, config.PAYMENT_NETWORK, "TRANSACTION_FAILED");
@@ -33,8 +37,11 @@ export async function verifyTransaction(hash: string): Promise<VerificationResul
   const transfer = transferLogs.find((log) => log.transactionHash === hash && log.args.to != null && log.args.to.toLowerCase() === config.PAYMENT_RECIPIENT_ADDRESS.toLowerCase());
   if (!transfer?.args.value) return invalid(hash, config.PAYMENT_NETWORK, "WRONG_RECIPIENT");
   const decimals = await client.readContract({ address: config.PAYMENT_TOKEN_CONTRACT as `0x${string}`, abi: erc20Abi, functionName: "decimals" });
-  const actual = formatUnits(transfer.args.value, decimals);
-  if (parseUnits(actual, decimals) < parseUnits(config.PAYMENT_AMOUNT, decimals)) return invalid(hash, config.PAYMENT_NETWORK, "INSUFFICIENT_AMOUNT");
+  const symbol = await client.readContract({ address: config.PAYMENT_TOKEN_CONTRACT as `0x${string}`, abi: erc20Abi, functionName: "symbol" });
+  if (decimals !== config.PAYMENT_DECIMALS || symbol !== config.PAYMENT_TOKEN) return invalid(hash, config.PAYMENT_NETWORK, "WRONG_TOKEN");
+  const requiredBaseUnits = BigInt(config.PAYMENT_AMOUNT_BASE_UNITS);
+  if (transfer.args.value < requiredBaseUnits) return invalid(hash, config.PAYMENT_NETWORK, "INSUFFICIENT_AMOUNT");
+  const actual = formatUnits(transfer.args.value, config.PAYMENT_DECIMALS);
 
   return { valid: true, confirmed: true, recipient: config.PAYMENT_RECIPIENT_ADDRESS, asset: config.PAYMENT_TOKEN, amount: actual, network: config.PAYMENT_NETWORK, hash, blockNumber: Number(receipt.blockNumber) };
 }

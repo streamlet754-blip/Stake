@@ -1,13 +1,17 @@
 import { z } from "zod";
 
+export const ETHEREUM_MAINNET_USDT_CONTRACT = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+
 const configSchema = z.object({
   DATABASE_URL: z.string().min(1),
-  PAYMENT_NETWORK: z.string().min(1),
-  PAYMENT_TOKEN: z.string().min(1),
-  PAYMENT_TOKEN_CONTRACT: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
-  PAYMENT_RECIPIENT_ADDRESS: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
-  PAYMENT_AMOUNT: z.string().regex(/^\d+(\.\d+)?$/),
-  PAYMENT_CURRENCY: z.string().min(1),
+  PAYMENT_NETWORK: z.literal("Ethereum mainnet"),
+  PAYMENT_TOKEN: z.literal("USDT"),
+  PAYMENT_TOKEN_CONTRACT: z.literal(ETHEREUM_MAINNET_USDT_CONTRACT),
+  PAYMENT_RECIPIENT_ADDRESS: z.literal("0xE022c3369DDdd4BBeB57A7f8C491f9d318e2013a"),
+  PAYMENT_AMOUNT: z.literal("2.34"),
+  PAYMENT_AMOUNT_BASE_UNITS: z.literal("2340000"),
+  PAYMENT_DECIMALS: z.coerce.number().int().min(0).max(18),
+  PAYMENT_CURRENCY: z.literal("USDT"),
   BLOCKCHAIN_RPC_URL: z.string().url(),
   LICENSE_SECRET: z.string().min(32),
   ADMIN_AUTH_SECRET: z.string().min(32),
@@ -29,6 +33,7 @@ export function getPublicPaymentConfig() {
     token: config.PAYMENT_TOKEN,
     amount: config.PAYMENT_AMOUNT,
     currency: config.PAYMENT_CURRENCY,
-    recipientAddress: config.PAYMENT_RECIPIENT_ADDRESS
+    recipientAddress: config.PAYMENT_RECIPIENT_ADDRESS,
+    contract: config.PAYMENT_TOKEN_CONTRACT
   };
 }
