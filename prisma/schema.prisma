@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PaymentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  ALREADY_CLAIMED
+}
+
+enum LicenseStatus {
+  ISSUED
+  ACTIVATED
+  REVOKED
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  transactionHash   String        @unique
+  network           String
+  token             String
+  recipientAddress  String
+  requiredAmount    String
+  actualAmount      String?
+  status            PaymentStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+  verifiedAt        DateTime?
+  license           License?
+}
+
+model License {
+  id          String        @id @default(cuid())
+  keyHash     String        @unique
+  status      LicenseStatus  @default(ISSUED)
+  paymentId   String        @unique
+  payment     Payment       @relation(fields: [paymentId], references: [id])
+  createdAt   DateTime      @default(now())
+  activatedAt DateTime?
+  deviceId    String?
+  lastSeenAt  DateTime?
+}
