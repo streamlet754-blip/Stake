@@ -18,12 +18,35 @@ const configSchema = z.object({
   MIN_CONFIRMATIONS: z.coerce.number().int().positive().default(12)
 });
 
-export function getConfig() {
-  const result = configSchema.safeParse(process.env);
-  if (!result.success) {
-    throw new Error("Blitle server configuration is incomplete or invalid");
+export type ConfigIssue = {
+  field: string;
+  reason: string;
+};
+
+export function getConfigValidationIssues(env: Record<string, string | undefined>): ConfigIssue[] {
+  const result = configSchema.safeParse(env);
+  if (result.success) {
+    return [];
   }
-  return result.data;
+
+  return result.error.issues.map((issue) => ({
+    field: issue.path[0] ? String(issue.path[0]) : "UNKNOWN",
+    reason: issue.message
+  }));
+}
+
+export function parseConfig(env: Record<string, string | undefined>) {
+  const issues = getConfigValidationIssues(env);
+  if (issues.length > 0) {
+    const summary = issues.map((issue) => `${issue.field}: ${issue.reason}`).join("; ");
+    throw new Error(`Blitle server configuration is invalid: ${summary}`);
+  }
+
+  return configSchema.parse(env);
+}
+
+export function getConfig() {
+  return parseConfig(process.env as Record<string, string | undefined>);
 }
 
 export function getPublicPaymentConfig() {
