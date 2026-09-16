@@ -8,7 +8,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { getConfig } from "@/lib/config";
 
 export async function POST(request: Request) {
-  if (!checkRateLimit(request.headers.get("x-forwarded-for") ?? "unknown")) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  if (!await checkRateLimit(`verify:${request.headers.get("x-forwarded-for") ?? "unknown"}`)) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   const parsed = transactionSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid transaction hash" }, { status: 400 });
   const config = getConfig();

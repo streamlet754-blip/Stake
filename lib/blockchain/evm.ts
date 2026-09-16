@@ -1,4 +1,4 @@
-import { createPublicClient, formatUnits, http, parseAbi, parseEventLogs, parseUnits } from "viem";
+import { createPublicClient, formatUnits, http, parseAbi, parseUnits } from "viem";
 import { getConfig } from "@/lib/config";
 
 const erc20Abi = parseAbi(["function decimals() view returns (uint8)"]);
@@ -29,11 +29,8 @@ export async function verifyTransaction(hash: string): Promise<VerificationResul
     return invalid(hash, config.PAYMENT_NETWORK, "WRONG_TOKEN");
   }
 
-  const logs = await client.getLogs({ address: config.PAYMENT_TOKEN_CONTRACT as `0x${string}`, fromBlock: receipt.blockNumber, toBlock: receipt.blockNumber });
-  const transfer = logs
-    .filter((log) => log.transactionHash === hash)
-    .flatMap((log) => parseEventLogs({ abi: transferAbi, logs: [log] }))
-    .find((log) => log.eventName === "Transfer" && log.args.to.toLowerCase() === config.PAYMENT_RECIPIENT_ADDRESS.toLowerCase());
+  const transferLogs = await client.getLogs({ address: config.PAYMENT_TOKEN_CONTRACT as `0x${string}`, event: transferAbi[0], fromBlock: receipt.blockNumber, toBlock: receipt.blockNumber });
+  const transfer = transferLogs.find((log) => log.transactionHash === hash && log.args.to != null && log.args.to.toLowerCase() === config.PAYMENT_RECIPIENT_ADDRESS.toLowerCase());
   if (!transfer?.args.value) return invalid(hash, config.PAYMENT_NETWORK, "WRONG_RECIPIENT");
   const decimals = await client.readContract({ address: config.PAYMENT_TOKEN_CONTRACT as `0x${string}`, abi: erc20Abi, functionName: "decimals" });
   const actual = formatUnits(transfer.args.value, decimals);

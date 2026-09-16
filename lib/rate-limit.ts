@@ -1,16 +1,16 @@
-type Bucket = { count: number; resetAt: number };
-const buckets = new Map<string, Bucket>();
-const windowMs = 60_000;
-const limit = 20;
+import { db } from "@/lib/database/client";
 
-export function checkRateLimit(key: string) {
-  const now = Date.now();
-  const current = buckets.get(key);
-  if (!current || current.resetAt <= now) {
-    buckets.set(key, { count: 1, resetAt: now + windowMs });
+export async function checkRateLimit(key: string, limit = 20) {
+  const now = new Date();
+  const resetAt = new Date(now.getTime() + 60_000);
+  const bucket = await db.rateLimitBucket.upsert({
+    where: { key },
+    create: { key, count: 1, resetAt },
+    update: { count: { increment: 1 } }
+  });
+  if (bucket.resetAt <= now) {
+    await db.rateLimitBucket.update({ where: { key }, data: { count: 1, resetAt } });
     return true;
   }
-  if (current.count >= limit) return false;
-  current.count += 1;
-  return true;
+  return bucket.count <= limit;
 }

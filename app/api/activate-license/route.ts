@@ -5,7 +5,7 @@ import { activationSchema } from "@/lib/validation";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
-  if (!checkRateLimit(request.headers.get("x-forwarded-for") ?? "unknown")) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  if (!await checkRateLimit(`activate:${request.headers.get("x-forwarded-for") ?? "unknown"}`)) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   const body = await request.json().catch(async () => {
     const form = await request.formData().catch(() => null);
     return form ? Object.fromEntries(form.entries()) : null;

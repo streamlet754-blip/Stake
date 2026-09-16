@@ -8,6 +8,7 @@ Blitle is a Next.js App Router site and server API for selling a premium Garmin 
 - `lib/blockchain/evm.ts`: configured EVM/ERC-20 transaction verification.
 - `lib/licensing/`: CSPRNG license generation and salted SHA-256 hashes.
 - `prisma/schema.prisma`: PostgreSQL payment/license state and uniqueness constraints.
+- Rate-limit buckets are stored in PostgreSQL so limits work across Vercel instances.
 - The existing Garmin integration is in `../ArcadeIQ`; it adds a license picker and HTTPS activation without embedding secrets.
 
 ## Local setup
