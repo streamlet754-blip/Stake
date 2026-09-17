@@ -7,7 +7,7 @@ const configSchema = z.object({
   PAYMENT_NETWORK: z.literal("Ethereum mainnet"),
   PAYMENT_TOKEN: z.literal("USDT"),
   PAYMENT_TOKEN_CONTRACT: z.literal(ETHEREUM_MAINNET_USDT_CONTRACT),
-  PAYMENT_RECIPIENT_ADDRESS: z.literal("0xE022c3369DDdd4BBeB57A7f8C491f9d318e2013a"),
+  PAYMENT_RECIPIENT_ADDRESS: z.literal("0xAdB139BF9c74E27E2F22d3761951E8ec207ce92B"),
   PAYMENT_AMOUNT: z.literal("2.34"),
   PAYMENT_AMOUNT_BASE_UNITS: z.literal("2340000"),
   PAYMENT_DECIMALS: z.coerce.number().int().min(0).max(18),
