@@ -164,6 +164,8 @@ h1 em, h2 em { color: var(--orange); font-style: normal; }
 .verify-card .input { border-color: #cbd4cb; border-radius: 2px; outline: 0; transition: border-color .2s, box-shadow .2s; }
 .verify-card .input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(242, 124, 75, .16); }
 .verify-card .button { border-radius: 2px; }
+.verify-card .button:disabled { cursor: wait; opacity: .65; }
+.verify-card .input:disabled { cursor: wait; opacity: .7; }
 .verify-card .notice { border-left: 3px solid var(--orange); }
 .verify-card .panel h2 { color: var(--ink); font-size: 23px; overflow-wrap: anywhere; }
 .coupon-label { display: flex; justify-content: space-between; }

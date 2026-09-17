@@ -1,4 +1,4 @@
-import { createPublicClient, formatUnits, http, parseAbi, parseUnits } from "viem";
+import { createPublicClient, formatUnits, http, parseAbi } from "viem";
 import { getConfig } from "@/lib/config";
 
 const erc20Abi = parseAbi([
@@ -21,7 +21,7 @@ export type VerificationResult = {
 
 export async function verifyTransaction(hash: string, requiredBaseUnits?: string): Promise<VerificationResult> {
   const config = getConfig();
-  const client = createPublicClient({ transport: http(config.BLOCKCHAIN_RPC_URL) });
+  const client = createPublicClient({ transport: http(config.BLOCKCHAIN_RPC_URL, { retryCount: 0, timeout: 15_000 }) });
   if (await client.getChainId() !== 1) return invalid(hash, config.PAYMENT_NETWORK, "WRONG_NETWORK");
   const receipt = await client.getTransactionReceipt({ hash: hash as `0x${string}` }).catch(() => null);
   if (!receipt) return invalid(hash, config.PAYMENT_NETWORK, "TRANSACTION_NOT_FOUND");

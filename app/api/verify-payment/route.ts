@@ -22,7 +22,13 @@ export async function POST(request: Request) {
   const existing = await db.payment.findUnique({ where: { transactionHash: hash }, include: { license: true } });
   if (existing?.status === "VERIFIED" && existing.license) return NextResponse.json({ status: "ALREADY_CLAIMED" }, { status: 409 });
 
-  const result = await verifyTransaction(hash, requiredAmountBaseUnits);
+  let result;
+  try {
+    result = await verifyTransaction(hash, requiredAmountBaseUnits);
+  } catch (error: unknown) {
+    console.error("Payment verification provider error", error);
+    return NextResponse.json({ error: "Payment verification is temporarily unavailable. Please try again." }, { status: 503 });
+  }
   if (!result.valid) {
     await db.payment.upsert({ where: { transactionHash: hash }, create: { transactionHash: hash, network: config.PAYMENT_NETWORK, token: config.PAYMENT_TOKEN, recipientAddress: config.PAYMENT_RECIPIENT_ADDRESS, requiredAmount: requiredAmountBaseUnits, couponCode: coupon?.code, discountPercent: coupon?.discountPercent, status: "REJECTED" }, update: { status: "REJECTED" } });
     return NextResponse.json({ status: "REJECTED", reason: result.reason }, { status: 400 });
