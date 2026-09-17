@@ -15,6 +15,7 @@ const configSchema = z.object({
   BLOCKCHAIN_RPC_URL: z.string().url(),
   LICENSE_SECRET: z.string().min(32),
   ADMIN_AUTH_SECRET: z.string().min(32),
+  OWNER_COUPON_CODE: z.string().min(8).max(128).optional(),
   MIN_CONFIRMATIONS: z.coerce.number().int().positive().default(12)
 });
 

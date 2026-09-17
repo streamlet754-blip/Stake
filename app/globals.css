@@ -165,6 +165,18 @@ h1 em, h2 em { color: var(--orange); font-style: normal; }
 .verify-card .button { border-radius: 2px; }
 .verify-card .notice { border-left: 3px solid var(--orange); }
 .verify-card .panel h2 { color: var(--ink); font-size: 23px; overflow-wrap: anywhere; }
+.coupon-box { margin-top: 34px; padding-top: 25px; border-top: 1px solid var(--line); }
+.coupon-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--ink); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.coupon-heading small { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: none; }
+.coupon-box > p { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.coupon-box form { margin-top: 18px; }
+.coupon-box .label { margin-top: 0; font-size: 12px; }
+.coupon-box .row { align-items: stretch; }
+.coupon-box .button { width: auto; margin-top: 0; padding: 12px 16px; }
+.coupon-box .notice { margin-top: 14px; padding: 11px 13px; font-size: 12px; }
+.coupon-license { display: grid; gap: 4px; margin-top: 12px; padding: 13px; background: #f2f5ed; border-left: 3px solid var(--mint); }
+.coupon-license strong { overflow-wrap: anywhere; color: var(--ink); font-family: 'Space Grotesk', sans-serif; letter-spacing: .04em; }
+.coupon-license span { color: var(--muted); font-size: 11px; }
 
 @media (max-width: 760px) {
 	.shell { padding: 18px 18px 34px; }
@@ -197,6 +209,9 @@ h1 em, h2 em { color: var(--orange); font-style: normal; }
 	.payment-card, .verify-card { padding: 22px; }
 	.card-heading { gap: 10px; }
 	.payment-card h2, .verify-card h2 { font-size: 28px; }
+	.coupon-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
+	.coupon-box .row { display: flex; }
+	.coupon-box .button { width: auto; margin-top: 0; }
 }
 
 /* Trust-first homepage */
