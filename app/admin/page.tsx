@@ -33,7 +33,7 @@ export default function AdminPage() {
 			setOwnerLicense(result.licenseKey);
 			setOwnerMessage("Owner license issued. Save this key securely.");
 		} else {
-			setOwnerMessage(result.error ?? "Owner license could not be issued.");
+			setOwnerMessage(result.error ?? `Owner license could not be issued (HTTP ${response.status}).`);
 		}
 	}
 

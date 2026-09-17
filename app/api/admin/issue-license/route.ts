@@ -8,10 +8,21 @@ import { generateLicenseKey, hashLicenseKey } from "@/lib/licensing/licenses";
 import { couponSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
-  if (!isAdminRequest(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    if (!isAdminRequest(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error: unknown) {
+    console.error("Admin configuration error", error);
+    return NextResponse.json({ error: "Admin configuration is missing or invalid. Check ADMIN_AUTH_SECRET and redeploy." }, { status: 503 });
+  }
   const parsed = couponSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid owner code" }, { status: 400 });
-  const config = getConfig();
+  let config;
+  try {
+    config = getConfig();
+  } catch (error: unknown) {
+    console.error("Owner license configuration error", error);
+    return NextResponse.json({ error: "Owner license configuration is missing or invalid. Check OWNER_COUPON_CODE and redeploy." }, { status: 503 });
+  }
   if (!config.OWNER_COUPON_CODE || parsed.data.code !== config.OWNER_COUPON_CODE) {
     return NextResponse.json({ error: "Invalid owner code" }, { status: 403 });
   }
@@ -34,7 +45,8 @@ export async function POST(request: Request) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return NextResponse.json({ error: "Owner code already redeemed" }, { status: 409 });
     }
-    throw error;
+    console.error("Owner license database error", error);
+    return NextResponse.json({ error: "License storage is unavailable. Apply the database schema and try again." }, { status: 503 });
   }
   return NextResponse.json({ status: "VERIFIED", licenseKey });
 }
