@@ -36,13 +36,17 @@ export function getConfigValidationIssues(env: Record<string, string | undefined
 }
 
 export function parseConfig(env: Record<string, string | undefined>) {
-  const issues = getConfigValidationIssues(env);
+  const normalizedEnv = {
+    ...env,
+    PAYMENT_TOKEN_CONTRACT: ETHEREUM_MAINNET_USDT_CONTRACT
+  };
+  const issues = getConfigValidationIssues(normalizedEnv);
   if (issues.length > 0) {
     const summary = issues.map((issue) => `${issue.field}: ${issue.reason}`).join("; ");
     throw new Error(`Blitle server configuration is invalid: ${summary}`);
   }
 
-  return configSchema.parse(env);
+  return configSchema.parse(normalizedEnv);
 }
 
 export function getConfig() {

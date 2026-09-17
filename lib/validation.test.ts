@@ -70,4 +70,24 @@ describe("server config validation", () => {
     expect(JSON.stringify(issues)).not.toContain("super-secret-value");
     expect(JSON.stringify(issues)).not.toContain("another-super-secret-value");
   });
+
+  it("uses the canonical token contract when the environment copy is wrong", () => {
+    const env = {
+      DATABASE_URL: "postgres://user:pass@host:5432/db",
+      PAYMENT_NETWORK: "Ethereum mainnet",
+      PAYMENT_TOKEN: "USDT",
+      PAYMENT_TOKEN_CONTRACT: "0xE022c3369DDdd4BBeB57A7f8C491f9d318e2013a",
+      PAYMENT_RECIPIENT_ADDRESS: "0xE022c3369DDdd4BBeB57A7f8C491f9d318e2013a",
+      PAYMENT_AMOUNT: "2.34",
+      PAYMENT_AMOUNT_BASE_UNITS: "2340000",
+      PAYMENT_DECIMALS: "6",
+      PAYMENT_CURRENCY: "USDT",
+      BLOCKCHAIN_RPC_URL: "https://eth.llamarpc.com",
+      LICENSE_SECRET: "12345678901234567890123456789012",
+      ADMIN_AUTH_SECRET: "abcdefghijklmnopqrstuvwxzy123456",
+      MIN_CONFIRMATIONS: "12"
+    };
+
+    expect(parseConfig(env).PAYMENT_TOKEN_CONTRACT).toBe("0xdAC17F958D2ee523a2206206994597C13D831ec7");
+  });
 });
