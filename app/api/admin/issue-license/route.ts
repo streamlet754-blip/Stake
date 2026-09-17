@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/database/client";
@@ -29,11 +29,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    const transactionHash = `owner:${createHash("sha256").update(`${config.LICENSE_SECRET}:${parsed.data.code}`).digest("hex")}`;
-    const existing = await db.payment.findUnique({ where: { transactionHash }, include: { license: true } });
-    if (existing?.license) return NextResponse.json({ error: "Owner code already redeemed" }, { status: 409 });
-
     licenseKey = generateLicenseKey();
+    const transactionHash = `owner:${randomUUID()}`;
     await db.$transaction(async (tx: Prisma.TransactionClient) => {
       const payment = await tx.payment.upsert({
         where: { transactionHash },
