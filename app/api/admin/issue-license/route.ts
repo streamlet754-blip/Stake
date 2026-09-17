@@ -47,6 +47,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Owner code already redeemed" }, { status: 409 });
     }
     console.error("Owner license database error", error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2021") {
+      return NextResponse.json({ error: "The live database schema is missing. Run Prisma db push against the production database, then redeploy." }, { status: 503 });
+    }
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      return NextResponse.json({ error: "The live database could not be reached. Check the production DATABASE_URL and redeploy." }, { status: 503 });
+    }
     return NextResponse.json({ error: "License storage is unavailable. Check DATABASE_URL and apply the Prisma schema, then try again." }, { status: 503 });
   }
   return NextResponse.json({ status: "VERIFIED", licenseKey });
