@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 export const transactionSchema = z.object({
-  transactionHash: z.string().regex(/^0x[a-fA-F0-9]{64}$/)
+  transactionHash: z.string().regex(/^0x[a-fA-F0-9]{64}$/),
+  couponCode: z.string().trim().max(32).optional()
 });
 
 export const couponSchema = z.object({

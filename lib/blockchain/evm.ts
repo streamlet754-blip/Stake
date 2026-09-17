@@ -19,7 +19,7 @@ export type VerificationResult = {
   reason?: string;
 };
 
-export async function verifyTransaction(hash: string): Promise<VerificationResult> {
+export async function verifyTransaction(hash: string, requiredBaseUnits?: string): Promise<VerificationResult> {
   const config = getConfig();
   const client = createPublicClient({ transport: http(config.BLOCKCHAIN_RPC_URL) });
   if (await client.getChainId() !== 1) return invalid(hash, config.PAYMENT_NETWORK, "WRONG_NETWORK");
@@ -39,8 +39,8 @@ export async function verifyTransaction(hash: string): Promise<VerificationResul
   const decimals = await client.readContract({ address: config.PAYMENT_TOKEN_CONTRACT as `0x${string}`, abi: erc20Abi, functionName: "decimals" });
   const symbol = await client.readContract({ address: config.PAYMENT_TOKEN_CONTRACT as `0x${string}`, abi: erc20Abi, functionName: "symbol" });
   if (decimals !== config.PAYMENT_DECIMALS || symbol !== config.PAYMENT_TOKEN) return invalid(hash, config.PAYMENT_NETWORK, "WRONG_TOKEN");
-  const requiredBaseUnits = BigInt(config.PAYMENT_AMOUNT_BASE_UNITS);
-  if (transfer.args.value < requiredBaseUnits) return invalid(hash, config.PAYMENT_NETWORK, "INSUFFICIENT_AMOUNT");
+  const requiredAmount = BigInt(requiredBaseUnits ?? config.PAYMENT_AMOUNT_BASE_UNITS);
+  if (transfer.args.value < requiredAmount) return invalid(hash, config.PAYMENT_NETWORK, "INSUFFICIENT_AMOUNT");
   const actual = formatUnits(transfer.args.value, config.PAYMENT_DECIMALS);
 
   return { valid: true, confirmed: true, recipient: config.PAYMENT_RECIPIENT_ADDRESS, asset: config.PAYMENT_TOKEN, amount: actual, network: config.PAYMENT_NETWORK, hash, blockNumber: Number(receipt.blockNumber) };

@@ -28,6 +28,8 @@ model Payment {
   recipientAddress  String
   requiredAmount    String
   actualAmount      String?
+  couponCode        String?
+  discountPercent   Int?
   status            PaymentStatus @default(PENDING)
   createdAt         DateTime      @default(now())
   verifiedAt        DateTime?
