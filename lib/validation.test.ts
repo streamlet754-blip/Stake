@@ -13,11 +13,12 @@ describe("request validation", () => {
   });
 
   it("accepts valid activation payloads", () => {
+    expect(activationSchema.safeParse({ licenseKey: "4827mira", deviceId: "install-123456" }).success).toBe(true);
     expect(activationSchema.safeParse({ licenseKey: "BLT-ABCD-2345-EFGH-JKLM", deviceId: "install-123456" }).success).toBe(true);
   });
 
   it("rejects invalid license formats", () => {
-    expect(activationSchema.safeParse({ licenseKey: "BLT-INVALID", deviceId: "install-123456" }).success).toBe(false);
+    expect(activationSchema.safeParse({ licenseKey: "4827Mira", deviceId: "install-123456" }).success).toBe(false);
   });
 });
 

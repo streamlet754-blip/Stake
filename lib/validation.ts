@@ -10,11 +10,11 @@ export const couponSchema = z.object({
 });
 
 export const activationSchema = z.object({
-  licenseKey: z.string().regex(/^BLT-[A-Z2-9]{4}(?:-[A-Z2-9]{4}){3}$/),
+  licenseKey: z.string().regex(/^(?:\d{4}[a-z]{4}|BLT-[A-Z2-9]{4}(?:-[A-Z2-9]{4}){3})$/),
   deviceId: z.string().min(8).max(256)
 });
 
 export const statusSchema = z.object({
-  licenseKey: z.string().regex(/^BLT-[A-Z2-9]{4}(?:-[A-Z2-9]{4}){3}$/),
+  licenseKey: z.string().regex(/^(?:\d{4}[a-z]{4}|BLT-[A-Z2-9]{4}(?:-[A-Z2-9]{4}){3})$/),
   deviceId: z.string().min(8).max(256)
 });
